@@ -1,0 +1,18 @@
+<h2>Description<br></h2><p></p><p></p><p>At this stage, your program should support variables. We suppose that the name of a variable (identifier) can contain only Latin letters. The case is also important; for example, <b>n</b> is not the same as <b>N</b>. The value can be an integer number or a value of another variable.</p>Use <code>Map</code> to support variables.<p></p><p></p><p>The assignment statement may look like the following:<br></p><p></p><p></p><pre><code>n = 3
+m=4
+a  =   5
+b = a</code></pre><p></p><p></p><p></p><p>A variable can have a name consisting of more than one letter.</p><p></p><pre><code>count = 10</code></pre><p></p><p>To print the value of a variable you should just type its name.</p><p></p><pre><code>N = 5
+N
+5</code></pre><p></p><p>It should be possible to set a new value to an existing variable.</p><p></p><pre><code>a = 1<br>a = 2<br>a = 3
+a
+3</code></pre><p></p><p></p><p>If an identifier or value of a variable is invalid, the program must print a message like the one below.</p><p></p><p></p><p></p><pre><code>a1 = 8<br>Invalid identifier<br>n = a2a<br>Invalid assignment<br>a = 7 = 8<br>Invalid assignment</code></pre><p></p><p><b></b></p><p><b></b>If a variable is not declared yet, the program should print <code>"Unknown variable"</code>.</p><p></p><p></p><pre><code>a = 8<br>b = c<br>Unknown variable
+e
+Unknown variable</code></pre><p></p><p></p><p></p><p>Handle as many incorrect inputs as possible. The program must never throw the <code>NumberFormatException</code> or any other exception.</p><p></p>It is important to note, all variables must store their values between calculations of different expressions.<div><br><h2>Input/Output example</h2><p></p><pre><code class="no-highlight">a = 3<br>b = 4<br>c = 5<br>a + b - c<br>2<br>b - c + 4 - a<br>0<br>a = 800<br>a + b + c<br>809
+BIG = 9000
+BIG
+9000
+big
+Unknown variable
+/exit
+Bye!
+</code></pre><p></p><p>The program should not stop until the user enters the <code>/exit</code> command.</p></div>

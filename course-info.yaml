@@ -1,0 +1,12 @@
+type: hyperskill
+title: Smart Calculator
+language: English
+summary: 'Calculators are great help: everyone is familiar with them. Why not write
+  one yourself, and make it really special? In this project, you will write a calculator
+  that not only adds, subtracts, multiplies, but also is smart enough to remember
+  your previous calculations.<br/><br/>Learn more at <a href="https://hyperskill.org">https://hyperskill.org/projects/42</a>'
+programming_language: Java
+programming_language_version: 11
+content:
+- Smart Calculator
+mode: Study
