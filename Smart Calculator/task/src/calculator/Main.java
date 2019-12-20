@@ -10,15 +10,17 @@ public class Main {
             String line = scanner.nextLine();
             if ("/exit".equals(line)) {
                 break;
+            } else if ("/help".equals(line)) {
+                System.out.println("The program calculates the sum of numbers");
+                continue;
             }
             String[] numbers = line.trim().split("\\s+");
-            if (numbers.length == 1 && !numbers[0].isBlank()) {
-                int a = Integer.parseInt(numbers[0]);
-                System.out.println(a);
-            } else if (numbers.length == 2) {
-                int a = Integer.parseInt(numbers[0]);
-                int b = Integer.parseInt(numbers[1]);
-                System.out.println(a + b);
+            if (numbers.length > 0 && !numbers[0].isBlank()) {
+                int sum = 0;
+                for (String number : numbers) {
+                    sum += Integer.parseInt(number);
+                }
+                System.out.println(sum);
             }
         }
         System.out.println("Bye!");

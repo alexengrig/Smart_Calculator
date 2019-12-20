@@ -24,6 +24,10 @@ public class Test extends BaseStageTest {
                 new PredefinedIOTestCase(
                         "100 200\n500\n300 400\n200\n\n\n-500\n/exit",
                         "300\n500\n700\n200\n-500\nBye!"
+                ),
+                new PredefinedIOTestCase(
+                        "801 199 -300 500\n10 20 30 40 50 -10 -20 -30 -40\n/exit",
+                        "1200\n50\nBye!"
                 )
         );
     }
