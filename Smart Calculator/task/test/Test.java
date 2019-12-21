@@ -14,20 +14,16 @@ public class Test extends BaseStageTest {
     public List<PredefinedIOTestCase> generate() {
         return List.of(
                 new PredefinedIOTestCase(
-                        "/exit",
-                        "Bye!"
+                        "100 + 200 - 300\n/exit",
+                        "0\nBye!"
                 ),
                 new PredefinedIOTestCase(
-                        "17 9\n-2 5\n\n7\n/exit",
-                        "26\n3\n7\nBye!"
+                        "4 + 6 - 8\n2 - 3 - 4\n/exit",
+                        "2\n-5\nBye!"
                 ),
                 new PredefinedIOTestCase(
-                        "100 200\n500\n300 400\n200\n\n\n-500\n/exit",
-                        "300\n500\n700\n200\n-500\nBye!"
-                ),
-                new PredefinedIOTestCase(
-                        "801 199 -300 500\n10 20 30 40 50 -10 -20 -30 -40\n/exit",
-                        "1200\n50\nBye!"
+                        "8\n\n-2 + 4 - 5 + 6\n9 +++ 10 -- 8\n3 --- 5\n14     -  12\n/exit",
+                        "8\n3\n27\n-2\n2\nBye!"
                 )
         );
     }
