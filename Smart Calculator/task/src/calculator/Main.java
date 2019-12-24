@@ -1,5 +1,8 @@
 package calculator;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -17,6 +20,11 @@ public class Main {
     private static final Map<String, Integer> VARIABLES = new HashMap<>();
 
     public static void main(String[] args) {
+        Calculator calculator = new Calculator(System.in, System.out);
+        calculator.run();
+    }
+
+    public static void main1(String[] args) {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             String line = scanner.nextLine();
@@ -128,5 +136,31 @@ public class Main {
         } else {
             return operation;
         }
+    }
+}
+
+class Calculator implements Runnable {
+    private final Scanner scanner;
+    private final PrintStream printer;
+
+    private boolean running;
+
+    public Calculator(InputStream in, OutputStream out) {
+        scanner = new Scanner(in);
+        printer = new PrintStream(out);
+        running = true;
+    }
+
+    @Override
+    public void run() {
+        while (running) {
+            String line = scanner.nextLine();
+
+        }
+        printer.println("Bye!");
+    }
+
+    public void shutdown() {
+        running = false;
     }
 }
