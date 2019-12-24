@@ -1,8 +1,20 @@
 package calculator;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
+interface Regexs {
+    String UNSIGNED_VARIABLE = "[A-Za-z]+";
+    String VARIABLE = "[-+]?" + UNSIGNED_VARIABLE;
+    String NUMBER = "[-+]?\\d+";
+    String VARIABLE_OR_NUMBER = "(" + NUMBER + "|" + VARIABLE + ")";
+    String OPERATIONS = "(-+|\\++)";
+    String EQUAL = "\\s*=\\s*";
+}
+
 public class Main {
+    private static final Map<String, Integer> VARIABLES = new HashMap<>();
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -17,26 +29,27 @@ public class Main {
                     System.out.println("Unknown command");
                 }
             } else if (!line.isBlank()) {
-                if (!isValidExpression(line)) {
-                    System.out.println("Invalid expression");
-                } else {
-                    String[] numbers = line.trim().split("\\s+");
-                    if (numbers.length > 0 && !numbers[0].isBlank()) {
-                        String first = numbers[0];
-                        int result = Integer.parseInt(first);
-                        for (int i = 1; i < numbers.length; i++) {
-                            String operation = numbers[i];
-                            String reduceOperation = reduceOperation(operation);
-                            String number = numbers[++i];
-                            int value = Integer.parseInt(number);
-                            if ("+".equals(reduceOperation)) {
-                                result += value;
-                            } else if ("-".equals(reduceOperation)) {
-                                result -= value;
-                            }
+                try {
+                    if (isCalculationExpression(line)) {
+                        try {
+                            int result = getResult(line);
+                            System.out.println(result);
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
                         }
-                        System.out.println(result);
+                    } else if (isAssignmentExpression(line)) {
+                        try {
+                            String[] split = line.split(Regexs.EQUAL);
+                            String variable = split[0];
+                            String expression = split[1];
+                            int value = getResult(expression);
+                            VARIABLES.put(variable, value);
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                        }
                     }
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
                 }
             }
         }
@@ -47,8 +60,60 @@ public class Main {
         return line.startsWith("/");
     }
 
-    private static boolean isValidExpression(String line) {
-        return line.matches("[-+]?\\d+(\\s+(-+|\\++)\\s+[-+]?\\d+)*");
+    private static boolean isCalculationExpression(String line) {
+        String calculationExpression = Regexs.VARIABLE_OR_NUMBER + "(\\s+" + Regexs.OPERATIONS + "\\s+"
+                + Regexs.VARIABLE_OR_NUMBER + ")*";
+        return line.matches(calculationExpression);
+    }
+
+    private static boolean isAssignmentExpression(String line) {
+        boolean hasOneEqualSign = line.matches("[^=]+=[^=]+");
+        if (!hasOneEqualSign) {
+            throw new IllegalArgumentException("Invalid assignment");
+        }
+        boolean ok = line.matches(Regexs.UNSIGNED_VARIABLE + "\\s*=.*");
+        if (!ok) {
+            throw new IllegalArgumentException("Invalid identifier");
+        }
+        boolean isValidExpression = line.matches(".*=\\s*" + Regexs.VARIABLE_OR_NUMBER
+                + "(\\s+" + Regexs.OPERATIONS + "\\s+" + Regexs.VARIABLE_OR_NUMBER + ")*");
+        if (!isValidExpression) {
+            throw new IllegalArgumentException("Invalid assignment");
+        }
+        return true;
+    }
+
+    private static Integer getValue(String line) {
+        if (line.matches(Regexs.NUMBER)) {
+            return Integer.parseInt(line);
+        } else if (line.matches(Regexs.VARIABLE)) {
+            Integer value = VARIABLES.get(line);
+            if (value != null) {
+                return value;
+            } else {
+                throw new IllegalArgumentException("Unknown variable");
+            }
+        } else {
+            throw new IllegalArgumentException("Unknown pattern: " + line);
+        }
+    }
+
+    private static int getResult(String line) {
+        String[] values = line.trim().split("\\s+");
+        String first = values[0];
+        int result = getValue(first);
+        for (int i = 1; i < values.length; i++) {
+            String operation = values[i];
+            String reduceOperation = reduceOperation(operation);
+            String next = values[++i];
+            int value = getValue(next);
+            if ("+".equals(reduceOperation)) {
+                result += value;
+            } else if ("-".equals(reduceOperation)) {
+                result -= value;
+            }
+        }
+        return result;
     }
 
     private static String reduceOperation(String operation) {
