@@ -1,18 +1,14 @@
 package calculator;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
 interface Regexs {
-    String UNSIGNED_VARIABLE = "[A-Za-z]+";
-    String VARIABLE = "[-+]?" + UNSIGNED_VARIABLE;
+    String VARIABLE = "[-+]?" + "[A-Za-z]+";
     String NUMBER = "[-+]?\\d+";
-    String VARIABLE_OR_NUMBER = "(" + NUMBER + "|" + VARIABLE + ")";
-    String OPERATIONS = "(-+|\\++)";
+    String VARIABLE_OR_NUMBER = "\\(*(" + NUMBER + "|" + VARIABLE + ")\\)*";
+    String OPERATIONS = "(-+|\\++|/|*|^)";
     String EQUAL = "\\s*=\\s*";
 }
 
@@ -79,7 +75,7 @@ public class Main {
         if (!hasOneEqualSign) {
             throw new IllegalArgumentException("Invalid assignment");
         }
-        boolean ok = line.matches(Regexs.UNSIGNED_VARIABLE + "\\s*=.*");
+        boolean ok = line.matches("[A-Za-z]+" + "\\s*=.*");
         if (!ok) {
             throw new IllegalArgumentException("Invalid identifier");
         }
@@ -136,31 +132,5 @@ public class Main {
         } else {
             return operation;
         }
-    }
-}
-
-class Calculator implements Runnable {
-    private final Scanner scanner;
-    private final PrintStream printer;
-
-    private boolean running;
-
-    public Calculator(InputStream in, OutputStream out) {
-        scanner = new Scanner(in);
-        printer = new PrintStream(out);
-        running = true;
-    }
-
-    @Override
-    public void run() {
-        while (running) {
-            String line = scanner.nextLine();
-
-        }
-        printer.println("Bye!");
-    }
-
-    public void shutdown() {
-        running = false;
     }
 }

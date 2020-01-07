@@ -23,8 +23,8 @@ public class PostfixNotationReducer {
                 }
             } else {
                 Operation operation = Operation.valueOfTerm(term);
-                Integer a = stack.pop();
                 Integer b = stack.pop();
+                Integer a = stack.pop();
                 int result = operation.perform(a, b);
                 stack.push(result);
             }

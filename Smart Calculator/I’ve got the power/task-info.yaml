@@ -68,6 +68,33 @@ files:
         }
     }
   learner_created: false
+- name: src/calculator/Operation.java
+  visible: true
+  learner_created: true
+- name: src/calculator/PostfixNotationConverter.java
+  visible: true
+  learner_created: true
+- name: test/calculator/PostfixNotationConverterTest.java
+  visible: true
+  learner_created: true
+- name: src/calculator/PostfixNotationReducer.java
+  visible: true
+  learner_created: true
+- name: test/calculator/PostfixNotationReducerTest.java
+  visible: true
+  learner_created: true
+- name: src/calculator/ExpressionMatcher.java
+  visible: true
+  learner_created: true
+- name: src/calculator/Calculator.java
+  visible: true
+  learner_created: true
+- name: src/calculator/InvalidAssignmentException.java
+  visible: true
+  learner_created: true
+- name: src/calculator/InvalidIdentifierException.java
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/42/stages/226/implement
-status: Unchecked
+status: Failed
 record: -1
