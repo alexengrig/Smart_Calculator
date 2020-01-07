@@ -4,6 +4,9 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
 
+import static calculator.ExpressionMatcher.isOperand;
+import static calculator.ExpressionMatcher.isOperation;
+
 public class PostfixNotationConverter {
     public Deque<String> convert(List<String> infix) {
         Deque<String> result = new ArrayDeque<>();
@@ -12,7 +15,7 @@ public class PostfixNotationConverter {
             if (isOperand(term)) {
                 result.offer(term);
             } else if (isOperation(term)) {
-                if (stack.isEmpty() || "(".equals(stack.peek())) {
+                if (stack.isEmpty() || isLeftBracket(stack.peek())) {
                     stack.push(term);
                 } else if (hasHigherPrecedence(term, stack.peek())) {
                     stack.push(term);
@@ -20,17 +23,17 @@ public class PostfixNotationConverter {
                     do {
                         result.offer(stack.pop());
                     } while (!stack.isEmpty()
-                            && !"(".equals(stack.peek())
+                            && !isLeftBracket(stack.peek())
                             && hasLowerOrEqualPrecedence(term, stack.peek()));
                     stack.push(term);
                 }
-            } else if ("(".equals(term)) {
+            } else if (isLeftBracket(term)) {
                 stack.push(term);
-            } else if (")".equals(term)) {
-                String pop;
-                while (!stack.isEmpty() && !"(".equals((pop = stack.pop()))) {
-                    if (!")".equals(pop)) {
-                        result.offer(pop);
+            } else if (isRightBracket(term)) {
+                String top;
+                while (!stack.isEmpty() && !isLeftBracket((top = stack.pop()))) {
+                    if (!isRightBracket(top)) {
+                        result.offer(top);
                     }
                 }
             }
@@ -41,35 +44,19 @@ public class PostfixNotationConverter {
         return result;
     }
 
-    private boolean isOperand(String term) {
-        return term.matches("[-+]?(\\d+|[A-Za-z]+)");
+    private boolean isRightBracket(String term) {
+        return ")".equals(term);
     }
 
-    private boolean isOperation(String term) {
-        return term.matches("[-+/*]");
+    private boolean isLeftBracket(String term) {
+        return "(".equals(term);
     }
 
-    private boolean hasHigherPrecedence(String term, String other) {
-        return getPrecedence(term) > getPrecedence(other);
+    private boolean hasHigherPrecedence(String left, String right) {
+        return Operation.valueOfTerm(left).getPrecedence() > Operation.valueOfTerm(right).getPrecedence();
     }
 
-    private boolean hasLowerOrEqualPrecedence(String term, String other) {
-        return getPrecedence(term) <= getPrecedence(other);
-    }
-
-    private int getPrecedence(String term) {
-        if ("^".equals(term)) {
-            return 2;
-        } else if ("*".equals(term)) {
-            return 1;
-        } else if ("/".equals(term)) {
-            return 1;
-        } else if ("+".equals(term)) {
-            return 0;
-        } else if ("-".equals(term)) {
-            return 0;
-        } else {
-            throw new IllegalArgumentException("Unknown operation: " + term);
-        }
+    private boolean hasLowerOrEqualPrecedence(String left, String right) {
+        return Operation.valueOfTerm(left).getPrecedence() <= Operation.valueOfTerm(right).getPrecedence();
     }
 }
