@@ -78,6 +78,96 @@ files:
         }
     }
   learner_created: false
+- name: test/calculator/PostfixNotationConverterTest.java
+  visible: true
+  text: |-
+    package calculator;
+
+    import org.junit.Assert;
+    import org.junit.Test;
+
+    import java.util.Deque;
+    import java.util.List;
+
+    public class PostfixNotationConverterTest {
+        private final PostfixNotationConverter converter = new PostfixNotationConverter();
+
+        @Test
+        public void check_simple() {
+            List<String> infix = List.of("3", "+", "2", "*", "4");
+            Deque<String> postfix = converter.convert(infix);
+            List<String> expected = List.of("3", "2", "4", "*", "+");
+            Assert.assertArrayEquals(expected.toArray(), postfix.toArray());
+        }
+
+        @Test
+        public void check_simple_with_variables() {
+            List<String> infix = List.of("a", "+", "2", "*", "b");
+            Deque<String> postfix = converter.convert(infix);
+            List<String> expected = List.of("a", "2", "b", "*", "+");
+            Assert.assertArrayEquals(expected.toArray(), postfix.toArray());
+        }
+
+        @Test
+        public void check_complex() {
+            List<String> infix = List.of("2", "*", "(", "3", "+", "4", ")", "+", "1");
+            Deque<String> postfix = converter.convert(infix);
+            List<String> expected = List.of("2", "3", "4", "+", "*", "1", "+");
+            Assert.assertArrayEquals(expected.toArray(), postfix.toArray());
+        }
+
+        @Test
+        public void check_complex_with_variables() {
+            List<String> infix = List.of("a", "*", "(", "3", "+", "b", ")", "+", "1");
+            Deque<String> postfix = converter.convert(infix);
+            List<String> expected = List.of("a", "3", "b", "+", "*", "1", "+");
+            Assert.assertArrayEquals(expected.toArray(), postfix.toArray());
+        }
+    }
+  learner_created: false
+- name: test/calculator/PostfixNotationReducerTest.java
+  visible: true
+  text: |-
+    package calculator;
+
+    import org.junit.Test;
+
+    import java.util.ArrayDeque;
+    import java.util.List;
+    import java.util.Map;
+
+    import static org.junit.Assert.assertEquals;
+
+    public class PostfixNotationReducerTest {
+        private final PostfixNotationReducer reducer = new PostfixNotationReducer();
+
+        @Test
+        public void check_simple() {
+            int result = reducer.reduce(new ArrayDeque<>(List.of("3", "2", "4", "*", "+")));
+            assertEquals(11, result);
+        }
+
+        @Test
+        public void check_simple_with_variables() {
+            Map<String, Integer> variables = Map.of("a", 3, "b", 4);
+            int result = reducer.reduce(new ArrayDeque<>(List.of("a", "2", "b", "*", "+")), variables);
+            assertEquals(11, result);
+        }
+
+        @Test
+        public void check_complex() {
+            int result = reducer.reduce(new ArrayDeque<>(List.of("2", "3", "4", "+", "*", "1", "+")));
+            assertEquals(15, result);
+        }
+
+        @Test
+        public void check_complex_with_variables() {
+            Map<String, Integer> variables = Map.of("a", 2, "b", 4);
+            int result = reducer.reduce(new ArrayDeque<>(List.of("a", "3", "b", "+", "*", "1", "+")), variables);
+            assertEquals(15, result);
+        }
+    }
+  learner_created: false
 feedback_link: https://hyperskill.org/projects/42/stages/227/implement
 status: Unchecked
 record: -1

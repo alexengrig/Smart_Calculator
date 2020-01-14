@@ -95,6 +95,12 @@ files:
 - name: src/calculator/InvalidIdentifierException.java
   visible: true
   learner_created: true
+- name: src/calculator/ExpressionSplitter.java
+  visible: true
+  learner_created: true
+- name: test/calculator/ExpressionSplitterTest.java
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/42/stages/226/implement
 status: Failed
-record: -1
+record: 7
