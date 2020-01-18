@@ -53,6 +53,8 @@ public class ExpressionSplitter {
             return true;
         } else if (isRightBracket(prev)) {
             return true;
+        } else if (isEqual(prev)) {
+            return true;
         }
         return true;
     }
@@ -83,6 +85,10 @@ public class ExpressionSplitter {
 
     private boolean isRightBracket(char ch) {
         return ch == ')';
+    }
+
+    private boolean isEqual(char ch) {
+        return ch == '=';
     }
 
     private String poolAll(Deque<Character> deque) {

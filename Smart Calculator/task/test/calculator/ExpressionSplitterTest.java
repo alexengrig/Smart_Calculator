@@ -65,6 +65,12 @@ public class ExpressionSplitterTest {
     }
 
     @Test
+    public void check_a_equal_100() {
+        List<String> actual = splitter.split("a=100");
+        assertEquals(List.of("a", "=", "100"), actual);
+    }
+
+    @Test
     public void check_a_multi_2_sum_b_multi_3_sum_c_multi_left_2_sum_3_right() {
         List<String> actual = splitter.split("a*2+b*3+c*(2+3)");
         assertEquals(List.of("a", "*", "2", "+", "b", "*", "3", "+", "c", "*", "(", "2", "+", "3", ")"), actual);
