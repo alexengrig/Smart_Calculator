@@ -50,4 +50,17 @@ public class ExpressionSplitterTest {
         List<String> actual = splitter.split("Abc+Abc-Abc*Abc/Abc^Abc");
         assertEquals(List.of("Abc", "+", "Abc", "-", "Abc", "*", "Abc", "/", "Abc", "^", "Abc"), actual);
     }
+
+    @Test
+    public void check_AbcSumAbcSubAbcMultiAbcDivAbcExpAbc_with_brackets() {
+        List<String> actual = splitter.split("(Abc)+(Abc)-(Abc)*(Abc)/(Abc)^(Abc)");
+        assertEquals(List.of(
+                "(", "Abc", ")", "+",
+                "(", "Abc", ")", "-",
+                "(", "Abc", ")", "*",
+                "(", "Abc", ")", "/",
+                "(", "Abc", ")", "^",
+                "(", "Abc", ")"),
+                actual);
+    }
 }

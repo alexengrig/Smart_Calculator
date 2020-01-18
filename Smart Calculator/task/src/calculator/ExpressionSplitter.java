@@ -39,7 +39,7 @@ public class ExpressionSplitter {
             return false;
         } else if (isAlphabetic(curr) && isAlphabetic(prev)) {
             return false;
-        }else if (isPlus(curr) && isPlus(prev)) {
+        } else if (isPlus(curr) && isPlus(prev)) {
             return false;
         } else if (isMinus(curr) && isMinus(prev)) {
             return false;
@@ -48,6 +48,10 @@ public class ExpressionSplitter {
         } else if (isDiv(prev)) {
             return true;
         } else if (isExp(prev)) {
+            return true;
+        } else if (isLeftBracket(prev)) {
+            return true;
+        } else if (isRightBracket(prev)) {
             return true;
         }
         return true;
@@ -71,6 +75,14 @@ public class ExpressionSplitter {
 
     private boolean isExp(char ch) {
         return ch == '^';
+    }
+
+    private boolean isLeftBracket(char ch) {
+        return ch == '(';
+    }
+
+    private boolean isRightBracket(char ch) {
+        return ch == ')';
     }
 
     private String poolAll(Deque<Character> deque) {
