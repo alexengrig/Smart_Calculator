@@ -7,6 +7,7 @@ import java.util.List;
 
 import static calculator.ExpressionMatcher.isOperand;
 import static calculator.ExpressionMatcher.isOperation;
+import static java.lang.Character.isAlphabetic;
 import static java.lang.Character.isDigit;
 
 public class ExpressionSplitter {
@@ -36,7 +37,9 @@ public class ExpressionSplitter {
         Character prev = queue.getLast();
         if (isDigit(curr) && isDigit(prev)) {
             return false;
-        } else if (isPlus(curr) && isPlus(prev)) {
+        } else if (isAlphabetic(curr) && isAlphabetic(prev)) {
+            return false;
+        }else if (isPlus(curr) && isPlus(prev)) {
             return false;
         } else if (isMinus(curr) && isMinus(prev)) {
             return false;
@@ -77,6 +80,7 @@ public class ExpressionSplitter {
         }
         return builder.toString();
     }
+
 
     public List<String> split1(String line) {
         String[] members = line.split("\\s+");

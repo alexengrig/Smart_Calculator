@@ -44,4 +44,10 @@ public class ExpressionSplitterTest {
         List<String> actual = splitter.split("1+1-1*1/1^1");
         assertEquals(List.of("1", "+", "1", "-", "1", "*", "1", "/", "1", "^", "1"), actual);
     }
+
+    @Test
+    public void check_AbcSumAbcSubAbcMultiAbcDivAbcExpAbc() {
+        List<String> actual = splitter.split("Abc+Abc-Abc*Abc/Abc^Abc");
+        assertEquals(List.of("Abc", "+", "Abc", "-", "Abc", "*", "Abc", "/", "Abc", "^", "Abc"), actual);
+    }
 }
