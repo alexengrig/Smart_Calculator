@@ -4,24 +4,26 @@ package calculator;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 import static calculator.ExpressionMatcher.*;
 
 class Calculator implements Runnable {
     private final Scanner scanner;
     private final PrintStream printer;
+    private final ExpressionSplitter splitter;
     private final PostfixNotationConverter converter;
     private final PostfixNotationReducer reducer;
+
+    private final Map<String, Integer> variables;
 
     public Calculator(InputStream in, OutputStream out) {
         scanner = new Scanner(in);
         printer = new PrintStream(out);
+        splitter = new ExpressionSplitter();
         converter = new PostfixNotationConverter();
         reducer = new PostfixNotationReducer();
+        variables = new HashMap<>();
     }
 
     @Override
@@ -40,32 +42,29 @@ class Calculator implements Runnable {
             } else if (!line.isBlank()) {
                 if (isCalculationExpression(line)) {
                     try {
-                        String[] members = line.split("\\s+");
-                        List<String> postfix = new ArrayList<>();
-                        for (String member : members) {
-                            if (isOperand(member)) {
-                                postfix.add(member);
-                            } else if (isOperation(member)) {
-                                postfix.add(reduceOperation(member));
-                            } else if (member.startsWith("(")) {
-                                int index = member.lastIndexOf('(');
-                                for (int i = 0; i < index + 1; i++) {
-                                    postfix.add("(");
-                                }
-                                postfix.add(member.substring(index + 1));
-                            } else if (member.endsWith(")")) {
-                                int index = member.indexOf(')');
-                                postfix.add(member.substring(0, index));
-                                for (int i = 0; i < member.length() - index; i++) {
-                                    postfix.add(")");
-                                }
-                            } else {
-                                throw new IllegalArgumentException("Unknown expression member: " + member);
+                        int left = 0, right = 0;
+                        for (char ch : line.toCharArray()) {
+                            if (ch == '(') {
+                                left++;
+                            } else if (ch == ')') {
+                                right++;
                             }
                         }
-                        Deque<String> infix = converter.convert(postfix);
-                        int result = reducer.reduce(infix);
+                        if (left != right) {
+                            throw new IllegalArgumentException();
+                        }
+                        int result = calculate(line);
                         System.out.println(result);
+                    } catch (Exception e) {
+                        System.out.println("Invalid expression");
+                    }
+                } else if (isAssignmentExpression(line)) {
+                    try {
+                        String[] split = line.split(Regexs.EQUAL);
+                        String variable = split[0];
+                        String expression = split[1];
+                        int value = calculate(expression);
+                        variables.put(variable, value);
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
@@ -75,6 +74,22 @@ class Calculator implements Runnable {
             }
         }
         printer.println("Bye!");
+    }
+
+    private int calculate(String line) {
+        List<String> members = splitter.split(line);
+        List<String> postfix = new ArrayList<>();
+        for (String member : members) {
+            if (isOperand(member)) {
+                postfix.add(member);
+            } else if (isOperation(member)) {
+                postfix.add(reduceOperation(member));
+            } else {
+                throw new IllegalArgumentException("Unknown expression member: " + member);
+            }
+        }
+        Deque<String> infix = converter.convert(postfix);
+        return reducer.reduce(infix);
     }
 
 
