@@ -4,8 +4,8 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
 
-import static calculator.ExpressionMatcher.isOperand;
-import static calculator.ExpressionMatcher.isOperation;
+import static calculator.ExpressionRegex.NUM_OR_VAR_WITH_BRACKETS;
+import static calculator.ExpressionRegex.OPERATIONS;
 
 public class PostfixNotationConverter {
     public Deque<String> convert(List<String> infix) {
@@ -44,6 +44,14 @@ public class PostfixNotationConverter {
         return result;
     }
 
+    private boolean isOperand(String term) {
+        return term.matches(NUM_OR_VAR_WITH_BRACKETS);
+    }
+
+    private boolean isOperation(String term) {
+        return term.matches(OPERATIONS);
+    }
+
     private boolean isRightBracket(String term) {
         return ")".equals(term);
     }
@@ -53,10 +61,22 @@ public class PostfixNotationConverter {
     }
 
     private boolean hasHigherPrecedence(String left, String right) {
-        return Operation.valueOfTerm(left).getPrecedence() > Operation.valueOfTerm(right).getPrecedence();
+        return getPrecedence(left) > getPrecedence(right);
     }
 
     private boolean hasLowerOrEqualPrecedence(String left, String right) {
-        return Operation.valueOfTerm(left).getPrecedence() <= Operation.valueOfTerm(right).getPrecedence();
+        return getPrecedence(left) <= getPrecedence(right);
+    }
+
+    private int getPrecedence(String operation) {
+        if (operation.matches("\\++") || operation.matches("-+")) {
+            return 0;
+        } else if ("*".equals(operation) || "/".equals(operation)) {
+            return 1;
+        } else if ("^".equals(operation)) {
+            return 2;
+        } else {
+            throw new IllegalArgumentException("Unknown operation: " + operation);
+        }
     }
 }

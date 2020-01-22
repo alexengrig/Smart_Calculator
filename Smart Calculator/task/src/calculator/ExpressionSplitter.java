@@ -5,14 +5,12 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
-import static calculator.ExpressionMatcher.isOperand;
-import static calculator.ExpressionMatcher.isOperation;
 import static java.lang.Character.isAlphabetic;
 import static java.lang.Character.isDigit;
 
 public class ExpressionSplitter {
     public List<String> split(String line) {
-        ArrayList<String> strings = new ArrayList<>();
+        List<String> strings = new ArrayList<>();
         String[] members = line.split("\\s+");
         Deque<Character> queue = new ArrayDeque<>();
         for (String member : members) {
@@ -97,47 +95,5 @@ public class ExpressionSplitter {
             builder.append(deque.poll());
         }
         return builder.toString();
-    }
-
-
-    public List<String> split1(String line) {
-        String[] members = line.split("\\s+");
-        List<String> result = new ArrayList<>();
-        for (String member : members) {
-            if (isOperand(member)) {
-                result.add(member);
-            } else if (isOperation(member)) {
-                result.add(reduceOperation(member));
-            } else if (member.startsWith("(")) {
-                int index = member.lastIndexOf('(');
-                for (int i = 0; i < index + 1; i++) {
-                    result.add("(");
-                }
-                result.add(member.substring(index + 1));
-            } else if (member.endsWith(")")) {
-                int index = member.indexOf(')');
-                result.add(member.substring(0, index));
-                for (int i = 0; i < member.length() - index; i++) {
-                    result.add(")");
-                }
-            } else {
-                throw new IllegalArgumentException("Unknown expression member: " + member);
-            }
-        }
-        return result;
-    }
-
-    private String reduceOperation(String operation) {
-        if (operation.length() < 2) {
-            return operation;
-        } else if ('+' == operation.charAt(0)) {
-            return "+";
-        } else if ('-' == operation.charAt(0) && operation.length() % 2 == 0) {
-            return "+";
-        } else if ('-' == operation.charAt(0) && operation.length() % 2 != 0) {
-            return "-";
-        } else {
-            return operation;
-        }
     }
 }
