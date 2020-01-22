@@ -71,19 +71,10 @@ files:
 - name: src/calculator/PostfixNotationConverter.java
   visible: true
   learner_created: true
-- name: test/calculator/PostfixNotationConverterTest.java
-  visible: true
-  learner_created: true
 - name: src/calculator/PostfixNotationReducer.java
   visible: true
   learner_created: true
-- name: test/calculator/PostfixNotationReducerTest.java
-  visible: true
-  learner_created: true
 - name: src/calculator/ExpressionSplitter.java
-  visible: true
-  learner_created: true
-- name: test/calculator/ExpressionSplitterTest.java
   visible: true
   learner_created: true
 - name: src/calculator/SmartCalculator.java
@@ -93,5 +84,5 @@ files:
   visible: true
   learner_created: true
 feedback_link: https://hyperskill.org/projects/42/stages/226/implement
-status: Failed
+status: Solved
 record: 7

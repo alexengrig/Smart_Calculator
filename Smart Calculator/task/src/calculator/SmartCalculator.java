@@ -40,6 +40,7 @@ public class SmartCalculator implements Runnable {
                 }
                 if (isCommand(input)) {
                     if ("/exit".equals(input)) {
+                        System.out.println("Bye!");
                         break;
                     }
                     executeCommand(input);
@@ -70,7 +71,7 @@ public class SmartCalculator implements Runnable {
             String help = "The program calculates the sum/subtraction/multiplication/division/power of numbers";
             printer.println(help);
         } else {
-            printer.println("Unknown command: " + input);
+            printer.println("Unknown command");
         }
     }
 
