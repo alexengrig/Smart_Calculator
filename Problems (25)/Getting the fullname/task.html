@@ -1,0 +1,20 @@
+<b>Getting the fullname</b> <a class="right" href="https://hyperskill.org/learn/step/8261">Open on Hyperskill</a><br/><br/><html>
+ <head></head>
+ <body>
+  <p>Here is the <code>User</code> class with two fields: <code>firstName</code> and <code>lastName</code>.</p> 
+  <p>Implement two null-safety setters and one calculated getter in the following ways:</p> 
+  <ul> 
+   <li>both setters should accept and set a value if it is not <code>null</code>, otherwise, empty string <code>""</code>;</li> 
+   <li>the getter should return the full name of the user by concatenating <code>firstName</code> and <code>lastName</code> using a single space between them. If one of the parts was not set, the getter should return another part without additional spaces. If both parts are empty, the getter should return the word <code>"Unknown"</code>.</li> 
+  </ul> 
+  <p>There are two examples below:</p> 
+  <pre><code class="language-java">User tim = new User();
+tim.setFirstName("Tim");
+tim.setLastName("Towler");
+System.out.println(tim.getFullName()); // Tim Towler
+User katie = new User();
+katie.setFirstName("Katie");
+katie.setLastName(null);
+System.out.println(katie.getFullName()); // Katie (without additional spaces)</code></pre>
+ </body>
+</html><br><br><font color="gray">Memory limit: 256 Mb</font><br><font color="gray">Time limit: 5s</font><br><br><br/><a href="https://hyperskill.org/learn/step/3599">Show topic summary</a>
