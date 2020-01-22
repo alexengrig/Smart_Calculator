@@ -1,0 +1,12 @@
+type: code
+files:
+- name: src/Main.java
+  visible: true
+  text: |-
+    public static BigInteger calcDoubleFactorial(int n) {
+        // type your java code here
+    }
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/3474
+status: Solved
+record: -1
