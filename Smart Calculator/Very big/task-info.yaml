@@ -168,6 +168,432 @@ files:
         }
     }
   learner_created: false
+- name: src/calculator/SmartCalculator.java
+  visible: true
+  text: |
+    package calculator;
+
+    import java.io.InputStream;
+    import java.io.OutputStream;
+    import java.io.PrintStream;
+    import java.util.*;
+
+    import static calculator.ExpressionRegex.*;
+
+    public class SmartCalculator implements Runnable {
+        private final Scanner scanner;
+        private final PrintStream printer;
+
+        private final ExpressionSplitter splitter;
+        private final PostfixNotationConverter converter;
+        private final PostfixNotationReducer reducer;
+
+        private final Map<String, Integer> variables;
+
+        public SmartCalculator() {
+            this(System.in, System.out);
+        }
+
+        public SmartCalculator(InputStream input, OutputStream output) {
+            this.scanner = new Scanner(input);
+            this.printer = new PrintStream(output);
+            this.splitter = new ExpressionSplitter();
+            this.converter = new PostfixNotationConverter();
+            this.reducer = new PostfixNotationReducer();
+            this.variables = new HashMap<>();
+        }
+
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    String input = scanner.nextLine();
+                    if (input.isBlank()) {
+                        continue;
+                    }
+                    if (isCommand(input)) {
+                        if ("/exit".equals(input)) {
+                            System.out.println("Bye!");
+                            break;
+                        }
+                        executeCommand(input);
+                    } else if (isAssignment(input)) {
+                        String name = getVariableName(input);
+                        requireValidName(name);
+                        String expression = getExpression(input);
+                        requireValidAssignment(expression);
+                        int result = getResult(expression);
+                        variables.put(name, result);
+                    } else {
+                        requireValidExpression(input);
+                        int result = getResult(input);
+                        printer.println(result);
+                    }
+                } catch (SmartCalculatorException e) {
+                    printer.println(e.getMessage());
+                }
+            }
+        }
+
+        private boolean isCommand(String line) {
+            return line.startsWith("/");
+        }
+
+        private void executeCommand(String input) {
+            if ("/help".equals(input)) {
+                String help = "The program calculates the sum/subtraction/multiplication/division/power of numbers";
+                printer.println(help);
+            } else {
+                printer.println("Unknown command");
+            }
+        }
+
+
+        private boolean isAssignment(String input) {
+            return input.contains("=");
+        }
+
+        private String getVariableName(String input) {
+            int index = input.indexOf("=");
+            return input.substring(0, index).trim();
+        }
+
+        private String getExpression(String input) {
+            int index = input.indexOf("=");
+            return input.substring(index + 1).trim();
+        }
+
+        private void requireValidName(String name) throws InvalidIdentifierException {
+            if (!name.matches(UNSIGNED_VARIABLE)) {
+                throw new InvalidIdentifierException();
+            }
+        }
+
+        private void requireValidAssignment(String assignment) throws InvalidAssignmentException {
+            try {
+                requireValidExpression(assignment);
+            } catch (InvalidExpressionException e) {
+                throw new InvalidAssignmentException();
+            }
+        }
+
+
+        private void requireValidExpression(String expression) throws InvalidExpressionException {
+            String regex = NUM_OR_VAR_WITH_BRACKETS + "(\\s*" + OPERATIONS + "\\s*" + NUM_OR_VAR_WITH_BRACKETS + ")*";
+            if (!expression.matches(regex)) {
+                throw new InvalidExpressionException();
+            }
+            int left = 0, right = 0;
+            for (char ch : expression.toCharArray()) {
+                if (ch == '(') {
+                    left++;
+                } else if (ch == ')') {
+                    right++;
+                }
+            }
+            if (left != right) {
+                throw new InvalidExpressionException();
+            }
+        }
+
+        private int getResult(String expression) {
+            List<String> infix = splitter.split(expression);
+            Deque<String> postfix = converter.convert(infix);
+            return reducer.reduce(postfix, variables);
+        }
+
+
+        private static class SmartCalculatorException extends Exception {
+            public SmartCalculatorException(String message) {
+                super(message);
+            }
+        }
+
+        private static class InvalidIdentifierException extends SmartCalculatorException {
+            public InvalidIdentifierException() {
+                super("Invalid identifier");
+            }
+        }
+
+        private static class InvalidExpressionException extends SmartCalculatorException {
+            public InvalidExpressionException() {
+                super("Invalid expression");
+            }
+
+            public InvalidExpressionException(String message) {
+                super(message);
+            }
+        }
+
+        private static class InvalidAssignmentException extends InvalidExpressionException {
+            public InvalidAssignmentException() {
+                super("Invalid assignment");
+            }
+        }
+    }
+  learner_created: true
+- name: src/calculator/ExpressionRegex.java
+  visible: true
+  text: |
+    package calculator;
+
+    public class ExpressionRegex {
+        public static final String UNSIGNED_NUMBER = "[0-9]+";
+        public static final String UNSIGNED_VARIABLE = "[A-Za-z]+";
+        public static final String NUM_OR_VAR_WITH_BRACKETS = "\\(*[-+]?(" + UNSIGNED_NUMBER + "|" + UNSIGNED_VARIABLE + ")\\)*";
+        public static final String OPERATIONS = "(\\++|-+|\\*|/|\\^)";
+    }
+  learner_created: true
+- name: src/calculator/PostfixNotationConverter.java
+  visible: true
+  text: |
+    package calculator;
+
+    import java.util.ArrayDeque;
+    import java.util.Deque;
+    import java.util.List;
+
+    import static calculator.ExpressionRegex.NUM_OR_VAR_WITH_BRACKETS;
+    import static calculator.ExpressionRegex.OPERATIONS;
+
+    public class PostfixNotationConverter {
+        public Deque<String> convert(List<String> infix) {
+            Deque<String> result = new ArrayDeque<>();
+            Deque<String> stack = new ArrayDeque<>();
+            for (String term : infix) {
+                if (isOperand(term)) {
+                    result.offer(term);
+                } else if (isOperation(term)) {
+                    if (stack.isEmpty() || isLeftBracket(stack.peek())) {
+                        stack.push(term);
+                    } else if (hasHigherPrecedence(term, stack.peek())) {
+                        stack.push(term);
+                    } else if (hasLowerOrEqualPrecedence(term, stack.peek())) {
+                        do {
+                            result.offer(stack.pop());
+                        } while (!stack.isEmpty()
+                                && !isLeftBracket(stack.peek())
+                                && hasLowerOrEqualPrecedence(term, stack.peek()));
+                        stack.push(term);
+                    }
+                } else if (isLeftBracket(term)) {
+                    stack.push(term);
+                } else if (isRightBracket(term)) {
+                    String top;
+                    while (!stack.isEmpty() && !isLeftBracket((top = stack.pop()))) {
+                        if (!isRightBracket(top)) {
+                            result.offer(top);
+                        }
+                    }
+                }
+            }
+            while (!stack.isEmpty()) {
+                result.offer(stack.pop());
+            }
+            return result;
+        }
+
+        private boolean isOperand(String term) {
+            return term.matches(NUM_OR_VAR_WITH_BRACKETS);
+        }
+
+        private boolean isOperation(String term) {
+            return term.matches(OPERATIONS);
+        }
+
+        private boolean isRightBracket(String term) {
+            return ")".equals(term);
+        }
+
+        private boolean isLeftBracket(String term) {
+            return "(".equals(term);
+        }
+
+        private boolean hasHigherPrecedence(String left, String right) {
+            return getPrecedence(left) > getPrecedence(right);
+        }
+
+        private boolean hasLowerOrEqualPrecedence(String left, String right) {
+            return getPrecedence(left) <= getPrecedence(right);
+        }
+
+        private int getPrecedence(String operation) {
+            if (operation.matches("\\++") || operation.matches("-+")) {
+                return 0;
+            } else if ("*".equals(operation) || "/".equals(operation)) {
+                return 1;
+            } else if ("^".equals(operation)) {
+                return 2;
+            } else {
+                throw new IllegalArgumentException("Unknown operation: " + operation);
+            }
+        }
+    }
+  learner_created: true
+- name: src/calculator/PostfixNotationReducer.java
+  visible: true
+  text: |
+    package calculator;
+
+    import java.util.ArrayDeque;
+    import java.util.Deque;
+    import java.util.Map;
+    import java.util.function.BiFunction;
+
+    import static calculator.ExpressionRegex.UNSIGNED_NUMBER;
+    import static calculator.ExpressionRegex.UNSIGNED_VARIABLE;
+
+    public class PostfixNotationReducer {
+        public int reduce(Deque<String> postfix) {
+            return reduce(postfix, null);
+        }
+
+        public int reduce(Deque<String> postfix, Map<String, Integer> variables) {
+            Deque<Integer> stack = new ArrayDeque<>();
+            while (!postfix.isEmpty()) {
+                String term = postfix.pop();
+                if (term.matches(UNSIGNED_NUMBER)) {
+                    stack.push(Integer.valueOf(term));
+                } else if (term.matches(UNSIGNED_VARIABLE)) {
+                    if (!variables.containsKey(term)) {
+                        throw new IllegalArgumentException("Unknown variable: " + term);
+                    }
+                    stack.push(variables.get(term));
+                } else {
+                    BiFunction<Integer, Integer, Integer> operation = getOperation(term);
+                    Integer b = stack.pop();
+                    Integer a = stack.pop();
+                    int result = operation.apply(a, b);
+                    stack.push(result);
+                }
+            }
+            return stack.remove();
+        }
+
+        private BiFunction<Integer, Integer, Integer> getOperation(String operation) {
+            if (operation.matches("\\++")) {
+                return (a, b) -> a + b;
+            } else if (operation.matches("-+")) {
+                if (operation.length() % 2 == 0) {
+                    return (a, b) -> a + b;
+                } else {
+                    return (a, b) -> a - b;
+                }
+            } else if ("*".equals(operation)) {
+                return (a, b) -> a * b;
+            } else if ("/".equals(operation)) {
+                return (a, b) -> a / b;
+            } else if ("^".equals(operation)) {
+                return (a, b) -> (int) Math.pow(a, b);
+            } else {
+                throw new IllegalArgumentException("Unknown operation: " + operation);
+            }
+        }
+    }
+  learner_created: true
+- name: src/calculator/ExpressionSplitter.java
+  visible: true
+  text: |
+    package calculator;
+
+    import java.util.ArrayDeque;
+    import java.util.ArrayList;
+    import java.util.Deque;
+    import java.util.List;
+
+    import static java.lang.Character.isAlphabetic;
+    import static java.lang.Character.isDigit;
+
+    public class ExpressionSplitter {
+        public List<String> split(String line) {
+            List<String> strings = new ArrayList<>();
+            String[] members = line.split("\\s+");
+            Deque<Character> queue = new ArrayDeque<>();
+            for (String member : members) {
+                for (char ch : member.toCharArray()) {
+                    if (needsPool(queue, ch)) {
+                        String value = poolAll(queue);
+                        strings.add(value);
+                    }
+                    queue.add(ch);
+                }
+                if (!queue.isEmpty()) {
+                    strings.add(poolAll(queue));
+                }
+            }
+            return strings;
+        }
+
+        private boolean needsPool(Deque<Character> queue, char curr) {
+            if (queue.isEmpty()) {
+                return false;
+            }
+            Character prev = queue.getLast();
+            if (isDigit(curr) && isDigit(prev)) {
+                return false;
+            } else if (isAlphabetic(curr) && isAlphabetic(prev)) {
+                return false;
+            } else if (isPlus(curr) && isPlus(prev)) {
+                return false;
+            } else if (isMinus(curr) && isMinus(prev)) {
+                return false;
+            } else if (isMulti(prev)) {
+                return true;
+            } else if (isDiv(prev)) {
+                return true;
+            } else if (isExp(prev)) {
+                return true;
+            } else if (isLeftBracket(prev)) {
+                return true;
+            } else if (isRightBracket(prev)) {
+                return true;
+            } else if (isEqual(prev)) {
+                return true;
+            }
+            return true;
+        }
+
+        private boolean isPlus(char ch) {
+            return ch == '+';
+        }
+
+        private boolean isMinus(char ch) {
+            return ch == '-';
+        }
+
+        private boolean isMulti(char ch) {
+            return ch == '*';
+        }
+
+        private boolean isDiv(char ch) {
+            return ch == '/';
+        }
+
+        private boolean isExp(char ch) {
+            return ch == '^';
+        }
+
+        private boolean isLeftBracket(char ch) {
+            return ch == '(';
+        }
+
+        private boolean isRightBracket(char ch) {
+            return ch == ')';
+        }
+
+        private boolean isEqual(char ch) {
+            return ch == '=';
+        }
+
+        private String poolAll(Deque<Character> deque) {
+            StringBuilder builder = new StringBuilder();
+            while (!deque.isEmpty()) {
+                builder.append(deque.poll());
+            }
+            return builder.toString();
+        }
+    }
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/42/stages/227/implement
-status: Unchecked
+status: Solved
 record: -1

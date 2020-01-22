@@ -13,10 +13,15 @@ public class Test extends BaseStageTest {
     @Override
     public List<PredefinedIOTestCase> generate() {
         return List.of(
-                /* Check simple additions and subtractions */
+                /* Check expressions with variables */
                 new PredefinedIOTestCase(
-                        "4 + 6 - 8\n\n\n2 - 3 - 4\n\n8 + 7 - 4\n1 +++ 2 * 3 -- 4\n/exit",
-                        "2\n-5\n11\n11\nBye!"
+                        "a = 4\nb = 5\nc = 6\na*2+b*3+c*(2+3)\n/exit",
+                        "53\nBye!"
+                ),
+                /* Check reassignment */
+                new PredefinedIOTestCase(
+                        "a = 1\na = 2\na = 3\na\n/exit",
+                        "3\nBye!"
                 ),
                 /* Check handling unknown commands */
                 new PredefinedIOTestCase(
@@ -33,15 +38,20 @@ public class Test extends BaseStageTest {
                         "8 * 3 + 12 * (4 - 2)\n4 * (2 + 3\n4 + 3)\n/exit",
                         "48\nInvalid expression\nInvalid expression\nBye!"
                 ),
-                /* Check expressions with variables */
+                /* Check expressions with large numbers */
                 new PredefinedIOTestCase(
-                        "a = 4\nb = 5\nc = 6\na*2+b*3+c*(2+3)\n/exit",
-                        "53\nBye!"
+                        "112234567890 + 112234567890 * (10000000999 - 999)\n/exit",
+                        "1122345679012234567890\nBye!"
                 ),
-                /* Check reassignment */
+                /* Check expressions with large numbers and variables */
                 new PredefinedIOTestCase(
-                        "a = 1\na = 2\na = 3\na\n/exit",
-                        "3\nBye!"
+                        "a = 800000000000000000000000\nb = 100000000000000000000000\na + b\n/exit",
+                        "900000000000000000000000\nBye!"
+                ),
+                /* Check reassignment with large numbers */
+                new PredefinedIOTestCase(
+                        "n = 3\nn = 500000000000\nn = 20000000000000000000000\nn\n/exit",
+                        "20000000000000000000000\nBye!"
                 )
         );
     }

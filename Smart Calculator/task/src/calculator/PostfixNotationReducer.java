@@ -1,5 +1,6 @@
 package calculator;
 
+import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Map;
@@ -9,47 +10,47 @@ import static calculator.ExpressionRegex.UNSIGNED_NUMBER;
 import static calculator.ExpressionRegex.UNSIGNED_VARIABLE;
 
 public class PostfixNotationReducer {
-    public int reduce(Deque<String> postfix) {
+    public BigInteger reduce(Deque<String> postfix) {
         return reduce(postfix, null);
     }
 
-    public int reduce(Deque<String> postfix, Map<String, Integer> variables) {
-        Deque<Integer> stack = new ArrayDeque<>();
+    public BigInteger reduce(Deque<String> postfix, Map<String, BigInteger> variables) {
+        Deque<BigInteger> stack = new ArrayDeque<>();
         while (!postfix.isEmpty()) {
             String term = postfix.pop();
             if (term.matches(UNSIGNED_NUMBER)) {
-                stack.push(Integer.valueOf(term));
+                stack.push(new BigInteger(term));
             } else if (term.matches(UNSIGNED_VARIABLE)) {
                 if (!variables.containsKey(term)) {
                     throw new IllegalArgumentException("Unknown variable: " + term);
                 }
                 stack.push(variables.get(term));
             } else {
-                BiFunction<Integer, Integer, Integer> operation = getOperation(term);
-                Integer b = stack.pop();
-                Integer a = stack.pop();
-                int result = operation.apply(a, b);
+                BiFunction<BigInteger, BigInteger, BigInteger> operation = getOperation(term);
+                BigInteger b = stack.pop();
+                BigInteger a = stack.pop();
+                BigInteger result = operation.apply(a, b);
                 stack.push(result);
             }
         }
         return stack.remove();
     }
 
-    private BiFunction<Integer, Integer, Integer> getOperation(String operation) {
+    private BiFunction<BigInteger, BigInteger, BigInteger> getOperation(String operation) {
         if (operation.matches("\\++")) {
-            return (a, b) -> a + b;
+            return BigInteger::add;
         } else if (operation.matches("-+")) {
             if (operation.length() % 2 == 0) {
-                return (a, b) -> a + b;
+                return BigInteger::add;
             } else {
-                return (a, b) -> a - b;
+                return BigInteger::subtract;
             }
         } else if ("*".equals(operation)) {
-            return (a, b) -> a * b;
+            return BigInteger::multiply;
         } else if ("/".equals(operation)) {
-            return (a, b) -> a / b;
+            return BigInteger::divide;
         } else if ("^".equals(operation)) {
-            return (a, b) -> (int) Math.pow(a, b);
+            return (a, b) -> a.modPow(b, BigInteger.valueOf(Integer.MAX_VALUE));
         } else {
             throw new IllegalArgumentException("Unknown operation: " + operation);
         }

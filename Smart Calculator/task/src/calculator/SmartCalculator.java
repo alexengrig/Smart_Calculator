@@ -3,6 +3,7 @@ package calculator;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.math.BigInteger;
 import java.util.*;
 
 import static calculator.ExpressionRegex.*;
@@ -15,7 +16,7 @@ public class SmartCalculator implements Runnable {
     private final PostfixNotationConverter converter;
     private final PostfixNotationReducer reducer;
 
-    private final Map<String, Integer> variables;
+    private final Map<String, BigInteger> variables;
 
     public SmartCalculator() {
         this(System.in, System.out);
@@ -49,11 +50,11 @@ public class SmartCalculator implements Runnable {
                     requireValidName(name);
                     String expression = getExpression(input);
                     requireValidAssignment(expression);
-                    int result = getResult(expression);
+                    BigInteger result = getResult(expression);
                     variables.put(name, result);
                 } else {
                     requireValidExpression(input);
-                    int result = getResult(input);
+                    BigInteger result = getResult(input);
                     printer.println(result);
                 }
             } catch (SmartCalculatorException e) {
@@ -123,7 +124,7 @@ public class SmartCalculator implements Runnable {
         }
     }
 
-    private int getResult(String expression) {
+    private BigInteger getResult(String expression) {
         List<String> infix = splitter.split(expression);
         Deque<String> postfix = converter.convert(infix);
         return reducer.reduce(postfix, variables);
